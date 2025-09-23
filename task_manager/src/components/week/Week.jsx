@@ -4,6 +4,7 @@ import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOu
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import { useState } from 'react';
+import NewModal from '../newModal/NewModal';
 
 
 const tasks = [
@@ -23,6 +24,11 @@ const tasks = [
 
 const Week = () => {
   const [openTask, setOpenTask] = useState(null);
+  const[addTask, setAddTask] = useState(false);
+    
+    const handleEditor =()=>{
+      setAddTask(addTask?false:true);
+    };
   
     const toggeleDetails = (id) => {
       setOpenTask(openTask === id ? null : id);
@@ -31,7 +37,7 @@ const Week = () => {
     <div className="week">
       <p className="title">This Week</p>
       <ul>
-        <li style={{ border: "1px solid #e6e6e6" }}>
+        <li style={{ border: "1px solid #e6e6e6" }} onClick={handleEditor}>
           <AddCircleOutlineOutlinedIcon />
           <span style={{ marginLeft: "10px" }}>Add New Task</span>
         </li>
@@ -71,6 +77,9 @@ const Week = () => {
         ))}
 
       </ul>
+      {addTask && (
+        <NewModal onClose ={handleEditor}/>
+      )}
     </div>
   )
 }
