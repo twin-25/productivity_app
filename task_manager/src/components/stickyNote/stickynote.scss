@@ -1,0 +1,60 @@
+.stickynote{
+  position: relative;
+  height: 250px;
+  width: 240px;
+  margin: 10px;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+
+  &-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .stickynote-title{
+      font-size: 20px;
+      font-weight: bold;
+      margin: 10px;
+    }
+
+    .stickynote-icon{
+      display: flex;
+      gap: 10px;
+
+      .icon{
+        cursor: pointer;
+        font-size: 20px;
+        color: rgba(0,0,0,0.6);
+
+        &:hover{
+          color: #000 ;
+        }
+      }
+    }
+  }
+  &-body{
+    padding-top: 18px;
+    flex-grow: 1;
+    overflow-y: auto;
+    min-height: 160px;
+    word-wrap: break-word;
+    line-height: 1.4;
+
+  }
+
+}
+.stickynote-body::-webkit-scrollbar {            /* Chrome/Safari/Edge */
+  width: 5px;
+}
+.stickynote-body::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  background-repeat: 4px;
+}
+
+.stickynote-body::-webkit-scrollbar-track {
+  background: transparent;
+}
