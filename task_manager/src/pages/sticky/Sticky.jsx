@@ -59,7 +59,7 @@ const Sticky = () => {
     closeModal();
   };
 
-  const handelDelete = (id) =>{
+  const handleDelete = (id) =>{
     if(window.confirm("Are you sure you want to delete?")){
       setWall((prev) => prev.filter((note) => note.id !== id));
     }
@@ -79,7 +79,7 @@ const Sticky = () => {
               content = {note.content}
               color = {note.color}
               onEdit = {()=>openEditModal(note)}
-              onDelete = {() =>handelDelete(note.id)}
+              onDelete = {() =>handleDelete(note.id)}
 />
             ))
           }

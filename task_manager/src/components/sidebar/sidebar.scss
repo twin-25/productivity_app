@@ -5,6 +5,7 @@
   color: #5D5A58;
   padding: 10px 10px;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  
 
   .top{
     height: 70px;
@@ -23,7 +24,8 @@
     }
     .search{
       display: flex;
-      align-items: center;
+      align-items: center ;
+      justify-content: space-between;
       border: 1px solid #E0E0E0;
       border-radius: 5px;
       padding: 5px;
