@@ -1,0 +1,46 @@
+.sticky{
+  display: flex;
+  
+
+  .sticky-container{
+    flex: 6;
+    padding: 10px;
+    margin: 20px;
+
+    .title{
+      font-size: 30px;
+      font-weight: bold;
+    }
+    .row{
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding-top: 20px;
+
+      .addnote{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #333;
+
+        .icon{
+          font-size: 50px;
+          cursor: pointer;
+          transition: transform .2s ease;
+          transition: transform .08s ease-out, filter .08s ease-out;
+
+
+        &:hover{
+          filter: brightness(0.1);
+        }
+
+         &:active{
+            transform: translateY(2px) scale(0.96);  /* goes “inside” */
+            filter: brightness(0.9);
+          }
+        }
+      }
+    }
+  }
+}
