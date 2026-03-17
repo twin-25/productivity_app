@@ -4,28 +4,30 @@ import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOu
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import { useState } from 'react';
+import EditDocumentIcon from '@mui/icons-material/EditDocument';
 import NewModal from '../newModal/NewModal';
 
 
-const tasks = [
-  {
-    id: "task1",
-    title: "Research Content Ideas",
-    date: '12-07-2025',
-    category: 'Personal'
-  },
-  {
-    id: "task2",
-    title: "learn to connect it to data base",
-    date: '12-07-2025',
-    category: 'Work'
-  }, 
-]
+// const tasks = [
+//   {
+//     id: "task1",
+//     title: "Research Content Ideas",
+//     date: '12-07-2025',
+//     category: 'Personal'
+//   },
+//   {
+//     id: "task2",
+//     title: "learn to connect it to data base",
+//     date: '12-07-2025',
+//     category: 'Work'
+//   }, 
+// ]
 
-const Week = () => {
+const Week = ({tasks}) => {
   const [openTask, setOpenTask] = useState(null);
   const[addTask, setAddTask] = useState(false);
-    
+  const [editTask, setEditTask] = useState(null)
+
     const handleEditor =()=>{
       setAddTask(addTask?false:true);
     };
@@ -45,23 +47,19 @@ const Week = () => {
           <li key={task.id}>
             <input type='checkbox' id={task.id} />
             <label htmlFor="">
-              {task.title}
+              {task.name}
               {openTask === task.id && (
                 <div className="details">
                   <div className="left">
                     <ChecklistIcon className='icon' />
                     <p>{task.date}</p>
                   </div>
-                  <div className="center">
-                    <span>2</span>
-                    <p>Subtasks</p>
-                  </div>
                   <div className="right">
                     <span className='color' style={{
                       backgroundColor:
-                        task.category === "Personal" ?
+                        task.category === "personal" ?
                           "#e74c3c" :
-                          task.category === "Work" ? "#3498db" :
+                          task.category === "work" ? "#3498db" :
                             "#f1c40f"
                     }}></span>
                     <p>{task.category}</p>
@@ -73,6 +71,7 @@ const Week = () => {
             <NavigateNextIcon className={`icon ${openTask === task.id ? 'rotate' : ""}`} onClick={(e) => {
               toggeleDetails(task.id)
             }} />
+            <EditDocumentIcon onClick = {(e) => setEditTask(task)}/>
           </li>
         ))}
 
@@ -80,6 +79,7 @@ const Week = () => {
       {addTask && (
         <NewModal onClose ={handleEditor}/>
       )}
+      {editTask && <NewModal onClose={() => setEditTask(null)} task={editTask}/>}
     </div>
   )
 }

@@ -6,7 +6,7 @@ import EditDocumentIcon from '@mui/icons-material/EditDocument';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import { useState } from 'react';
 import NewModal from '../newModal/NewModal';
-import { useGetTasksQuery } from '../../services/TaskApi';
+import { useUpdateTaskMutation } from '../../services/TaskApi';
 
 // const tasks =[
 //     {
@@ -35,11 +35,11 @@ import { useGetTasksQuery } from '../../services/TaskApi';
 // ]
 const Today = ({tasks}) => {
 
-  
-
   const[openTask, setOpenTask] = useState(null);
   const[addTask, setAddTask] = useState(false);
   const [editTask, setEditTask] = useState(null);
+
+  const [updateTask] = useUpdateTaskMutation()
 
   const handleEditor =()=>{
     setAddTask(addTask?false:true);
@@ -58,8 +58,22 @@ const Today = ({tasks}) => {
         </li>
         {tasks.map((task) =>(
           <li key={task.id}>
-          <input type = 'checkbox' id ={task.id}/>
-          <label htmlFor={task.id}>
+          <input type = 'checkbox'checked = {task.is_completed} 
+          onChange={async () => {
+                try {
+                    await updateTask({ pk: task.id, is_completed: !task.is_completed }).unwrap()
+                } catch (err) {
+                    console.log(err)
+                }
+            }}
+          
+          id ={task.id}/>
+          <label htmlFor={task.id}
+          style={{
+              textDecoration: task.is_completed ? 'line-through' : 'none',
+              color: task.is_completed ? '#aaa' : 'inherit'
+          }}
+          >
             {task.name}
             {openTask === task.id && (
               <div className="details">
@@ -67,15 +81,11 @@ const Today = ({tasks}) => {
                 <ChecklistIcon className='icon'/>
                 <p>{task.due_date}</p>
               </div>
-              <div className="center">
-                <span>2</span>
-                <p>Subtasks</p>
-              </div>
               <div className="right">
                 <span className='color' style={{backgroundColor:
-                  task.category === "Personal"?
+                  task.category === "personal"?
                    "#e74c3c":
-                  task.category === "Work"? "#3498db":
+                  task.category === "work"? "#3498db":
                   "#f1c40f"}}></span>
                 <p>{task.category}</p>
               </div>
