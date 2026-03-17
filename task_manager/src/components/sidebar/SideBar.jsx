@@ -9,10 +9,20 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import './sidebar.scss'
 import { useNavigate, Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { userApi } from '../../services/userApi';
+import { useGetTodaysTasksQuery, useGetTomorrowsTasksQuery, useGetUpcommingTasksQuery } from '../../services/TaskApi'
 
 const SideBar = () => {
+  const {data:todaysTasks} = useGetTodaysTasksQuery()
+  const {data:tomorrowsTasks} = useGetTomorrowsTasksQuery()
+  const {data:thisWeekTasks} = useGetUpcommingTasksQuery()
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const handleLogOut = () =>{
+    localStorage.removeItem('token')
+    localStorage.removeItem('userInfo')
+    dispatch(userApi.util.resetApiState())
     navigate('/')
   }
   return (
@@ -37,15 +47,17 @@ const SideBar = () => {
           <li>
             <NavigateNextIcon className='icon'/>
             <span>Upcomming</span>
-            <div className="counter">5</div>
+            <div className="counter">{thisWeekTasks?.length || 0}</div>
             </li>
           </Link>
           <Link to='/day'
-          style={{textDecoration:"none"}}>
+          style={{textDecoration:"none"}}
+          
+          >
           <li>
             <ChecklistIcon className='icon' />
             <span>Today</span>
-            <div className="counter">4</div>
+            <div className="counter">{todaysTasks?.length|| 0}</div>
           </li>
           </Link>
           <Link to='/calendar'

@@ -7,32 +7,32 @@ import { useState } from 'react';
 import NewModal from '../newModal/NewModal';
 
 
-const tasks = [
-  {
-    id: "task1",
-    title: "Research Content Ideas",
-    date: '12-07-2025',
-    category: 'Personal'
-  },
-  {
-    id: "task2",
-    title: "learn to connect it to data base",
-    date: '12-07-2025',
-    category: 'Work'
-  }, {
-    id: "task3",
-    title: "Apply to full time jobs",
-    date: '12-09-2025',
-    category: 'Other'
-  }, {
-    id: "task4",
-    title: "finish backend",
-    date: '30-10-2025',
-    category: 'Personal'
-  },
+// const tasks = [
+//   {
+//     id: "task1",
+//     title: "Research Content Ideas",
+//     date: '12-07-2025',
+//     category: 'Personal'
+//   },
+//   {
+//     id: "task2",
+//     title: "learn to connect it to data base",
+//     date: '12-07-2025',
+//     category: 'Work'
+//   }, {
+//     id: "task3",
+//     title: "Apply to full time jobs",
+//     date: '12-09-2025',
+//     category: 'Other'
+//   }, {
+//     id: "task4",
+//     title: "finish backend",
+//     date: '30-10-2025',
+//     category: 'Personal'
+//   },
 
-]
-const Tomorrow = () => {
+// ]
+const Tomorrow = ({tasks}) => {
   const [openTask, setOpenTask] = useState(null);
   const[addTask, setAddTask] = useState(false);
   
@@ -55,12 +55,12 @@ const Tomorrow = () => {
           <li key={task.id}>
             <input type='checkbox' id={task.id} />
             <label htmlFor="">
-              {task.title}
+              {task.name}
               {openTask === task.id && (
                 <div className="details">
                   <div className="left">
                     <ChecklistIcon className='icon' />
-                    <p>{task.date}</p>
+                    <p>{task.due_date}</p>
                   </div>
                   <div className="center">
                     <span>2</span>

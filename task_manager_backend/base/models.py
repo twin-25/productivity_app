@@ -18,7 +18,7 @@ class Tag(models.Model):
   user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='tags')
 
   def __str__(self):
-    return str(self.Tag)
+    return str(self.name)
 
 class Task(models.Model):
   user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -32,7 +32,7 @@ class Task(models.Model):
   due_date = models.DateField(blank=True, null=True)
 
   def __str__(self):
-    return str(self.Task)
+    return str(self.name)
 
 
 class Subtask (models.Model):
@@ -43,7 +43,7 @@ class Subtask (models.Model):
   updated_at = models.DateTimeField(auto_now=True)
 
   def __str__(self):
-    return str(self.Subtask)
+    return str(self.description)
 
 
 class StickyNote(models.Model):
@@ -55,7 +55,7 @@ class StickyNote(models.Model):
   user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='stickynote')
 
   def __str__(self):
-    return str(self.StickyNote)
+    return str(self.title)
 
 class CalendarEvent(models.Model):
   title = models.CharField(max_length=300)
@@ -63,7 +63,7 @@ class CalendarEvent(models.Model):
   created_at = models.DateTimeField(auto_now_add=True)
 
   def __str__(self):
-    return str(self.calendarEvent)
+    return str(self.title)
 
 
 

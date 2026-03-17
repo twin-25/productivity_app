@@ -6,4 +6,15 @@ urlpatterns =[
   path('', views.getRoutes, name='routes' ),
   path('api/user/register/', views.register, name='user_register'),
   path('api/user/login/', views.MyTokenObtainPairView.as_view(), name='user-login'),
+
+  path('api/tasks/', views.getTasks, name='get-tasks' ),
+  path('api/tasks/today/', views.getTodaysTasks, name='todays-tasks'),
+  path('api/tasks/tomorrow/', views.getTomorrowsTasks, name='tomorrows-tasks'),
+  path('api/tasks/thisweek/', views.getLaterTasks, name='this-week-tasks'),
+  path('api/tasks/create/', views.createTask, name = 'create-task'),
+  
+  path('api/tasks/<int:pk>/', views.getTask, name = 'get-task'),
+  path('api/tasks/<int:pk>/update/', views.updateTask, name = 'update-task'),
+  path('api/tasks/<int:pk>/delete/', views.deleteTask, name = 'delete-task'),
+
 ]
