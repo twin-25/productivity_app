@@ -32,7 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserSerializerWithToken(UserSerializer):
   token = serializers.SerializerMethodField(read_only= True)
 
-  def get_token(self, obj):s
+  def get_token(self, obj):
     token = RefreshToken.for_user(obj)
     return str(token.access_token)
   
@@ -70,6 +70,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     try:
       user_obj = User.objects.get(email = username_or_email)
       user = authenticate(username = user_obj.username, password = password)
+      if user:
+        attrs['username'] = user_obj.username
+
 
     except User.DoesNotExist:
       user = authenticate(username = username_or_email, password=password)

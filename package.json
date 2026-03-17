@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.11.2",
+    "react-loader-spinner": "^8.0.2"
+  }
+}

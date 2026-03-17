@@ -2,14 +2,21 @@ import React, { useState } from 'react'
 import './register.scss'
 import { Password } from '@mui/icons-material'
 import { Link, useNavigate } from 'react-router-dom'
+import {useCreateUserMutation} from '../../services/userApi'
+import Loader from '../../components/Loader'
 const Register = () => {
+  const [error, setError] = useState('')
+  const [createUser, {isLoading:registerLoading}] = useCreateUserMutation()
+  // const [loginUser, {data:loginData, error:loginError, isLoading:loginLoading}] = useCreateUserMutation()
+
+
   const [formData, setFormData] = useState({
     username:"",
     email:"",
     password:"",
     confirmPassword:'',
   })
-  const [error, setError] = useState("")
+  // const [error, setError] = useState("")
   const navigate = useNavigate();
 
   const handleChange = (e) =>{
@@ -17,18 +24,28 @@ const Register = () => {
       ...formData, [e.target.name]:e.target.value,
     });
   }
-  const handleSubmit = (e)=>{
+  const handleSubmit = async(e)=>{
     e.preventDefault();
     if(formData.password !== formData.confirmPassword){
-      setError("Password do not match");
+      setError('Password do not match');
       return;
     }
-    setError("")
-    alert("registration successful");
-    navigate('/login')
+    try{
+      await createUser({
+        username: formData.username,
+        email: formData.email,
+        password:formData.password,
+
+      }).unwrap()
+      navigate('/login')
+    }catch(err){
+      setError(err.data?.detail || 'Registration falied')
+    }
   }
+
   return (
     <div className="register">
+      {registerLoading && <Loader/>}
       <div className="right">
         <img src="public/images/logo.png" alt="Welcome to our App"  />
       </div>
@@ -43,6 +60,7 @@ const Register = () => {
               name='username'
               placeholder='Username'
               required
+              onChange={handleChange}
             />
             <input type="email" 
             name='email'

@@ -2,6 +2,8 @@ import React from 'react'
 import './login.scss'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import {useLoginUserMutation} from '../../services/userApi'
+import Loader from '../../components/Loader'
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +11,7 @@ const Login = () => {
       email:"",
       password:"",
     })
+    const [loginUser, {isLoading}] = useLoginUserMutation()
     const [error, setError] = useState("")
     const navigate = useNavigate();
   
@@ -17,21 +20,31 @@ const Login = () => {
         ...formData, [e.target.name]:e.target.value,
       });
     }
-    const handleSubmit = (e)=>{
+    const handleSubmit = async(e)=>{
       e.preventDefault();
-      const {username, password} = formData;
-      if (username.trim() === "" || password.trim()=== ""){
-        setError("please Fill in both fields");
+      const {username, password, email} = formData;
+      if ((username.trim() === "" &&email.trim() ==="") || password.trim()=== ""){
+        setError("please Fill in username or email and password fields");
         return;
       }
-      setError("");
-      alert("Login Successful");
-      navigate('/home')
+      try{
+        const res = await loginUser({
+          username:formData.username,
+          password:formData.password,
+          email:formData.email,
+        }).unwrap()
+        localStorage.setItem('token', res.token)  // ✅ save token
+        localStorage.setItem('userInfo', JSON.stringify(res))
+        navigate('/home')
+      }catch(err){
+        setError(err.data?.detail || 'Login unsuccessful')
+      }
     }
   return (
     <div className="login">
+      {isLoading&&<Loader/>}
       <div className="right">
-        <img src="public/images/logo.png" alt="Welcome to our App" srcset="" />
+        <img src="public/images/logo.png" alt="Welcome to our App"/>
       </div>
       <div className="left">
         <form onSubmit={handleSubmit}>
@@ -50,7 +63,7 @@ const Login = () => {
             <input type="email"
               name='email'
               placeholder='Email'
-              required onChange={handleChange} />
+              onChange={handleChange} />
             <input type="password"
               name="password"
               placeholder='Password'
