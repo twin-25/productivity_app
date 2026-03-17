@@ -1,8 +1,52 @@
 import React from 'react'
 import './newmodal.scss'
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
+import { useCreateTaskMutation, useDeleteTaskMutation, useUpdateTaskMutation } from '../../services/TaskApi';
+import { useState } from 'react';
 
-const NewModal = ({onClose}) => {
+const NewModal = ({onClose, task}) => {
+  const [formData, setFormData] = useState({
+    name: task ? task.name : '',
+    description: task ? task.description : '',
+    category: task ? task.category : 'Personal',
+    due_date: task ? task.due_date : '',
+    tags: task ? task.tags : [],
+})
+
+const [createTask, { isLoading: creating }] = useCreateTaskMutation()
+const [updateTask, { isLoading: updating }] = useUpdateTaskMutation()
+const [deleteTask, { isLoading: deleting }] = useDeleteTaskMutation()
+
+const [error, setError] = useState('')
+
+const handleChange = (e) =>{
+  setFormData({...formData, [e.target.name]: e.target.value})
+}
+
+const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+        if (!task) {
+            await createTask(formData).unwrap()
+        } else {
+            await updateTask({ pk: task.id, ...formData }).unwrap()  // ✅ pass as one object
+        }
+        onClose()
+    } catch (err) {
+        setError(err.data?.detail || 'Something went wrong')
+    }
+}
+
+const handleDelete = async() =>{
+  try{
+      await deleteTask(task.id).unwrap()
+      onClose()
+    }catch (err){
+      setError(err.data?.detail || 'Delete Failed')
+    }
+  
+}
+
   return (
     <div className="modal-overlay">
       <div className="modal-content">
@@ -13,14 +57,14 @@ const NewModal = ({onClose}) => {
         <div className="new">
           <div className="top">
             <p className="title">Task:</p>
-            <input type="text" placeholder='Enter a task' value=''/><br/><br/>
-            <textarea placeholder='description' value=''></textarea>
+            <input type="text" name = 'name' placeholder='Enter a task' value={formData.name} onChange={handleChange}/><br/><br/>
+            <textarea placeholder='description' name = 'description' value={formData.description} onChange={handleChange}></textarea>
           </div>
         <div className="center">
           <ul>
             <li>
               <p>Category</p>
-              <select name='list' id = 'list' value =''>
+              <select name='category' id = 'list' value={formData.category} onChange={handleChange}>
                 <option value="personal">Personal</option>
                 <option value="work">Work</option>
                 <option value="others">Others</option>
@@ -28,12 +72,15 @@ const NewModal = ({onClose}) => {
             </li>
             <li>
               <p>Due date</p>
-              <input type="date" name="due_date" id="due_date" value='' />
+              <input type="date" name="due_date" id="due_date" value={formData.due_date} onChange={handleChange} />
             </li>
             <li>
               <p>Tags</p>
               <div className='tags'>
-                <select multiple value='' className='native-multi-select' 
+                <select multiple value={formData.tags} className='native-multi-select' 
+                onChange={(e) => {
+    const selected = Array.from(e.target.selectedOptions, option => option.value)
+    setFormData({...formData, tags: selected})}}
                 style={{width:"100%",
                   height:"100px",
                   padding:"8px",
@@ -59,26 +106,12 @@ const NewModal = ({onClose}) => {
               </p>
             </li>
           </ul>
-          <div className="subtasks">
-            <p className="sub">Subtasks</p>
-            <ul>
-              <li>
-                <input type="text" name="" id="" placeholder='Subtask1' />
-              </li>
-              <li>
-                <input type="text" name="" id="" placeholder='Subtask1' />
-              </li>
-              <li className='add-subtask'>
-                <AddCircleOutlineOutlinedIcon className='icon'/> <span>Add New Subtask</span>
-              </li>
-            </ul>
-          </div>
         </div>
         <div className="bottom">
           
             <button className="cancel" onClick={onClose}>Cancel</button>
-            <button className="delete">Delete</button>
-            <button className="save">Save</button>
+            <button className="save" onClick={handleSubmit}>{creating || updating ? 'Saving...' : 'Save'}</button>
+            {task && <button className='delete' onClick={handleDelete}>Delete</button>}
         </div>
         </div>
       </div>

@@ -2,6 +2,7 @@ import React from 'react'
 import './today.scss'
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import EditDocumentIcon from '@mui/icons-material/EditDocument';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import { useState } from 'react';
 import NewModal from '../newModal/NewModal';
@@ -38,6 +39,7 @@ const Today = ({tasks}) => {
 
   const[openTask, setOpenTask] = useState(null);
   const[addTask, setAddTask] = useState(false);
+  const [editTask, setEditTask] = useState(null);
 
   const handleEditor =()=>{
     setAddTask(addTask?false:true);
@@ -81,9 +83,11 @@ const Today = ({tasks}) => {
             )}
             
           </label>
-          <NavigateNextIcon className={`icon ${openTask === task.id? 'rotate': ""}`} onClick={(e) =>{
+          <NavigateNextIcon className={`icon ${openTask === task.id? 'rotate': ""}`} onClick={() =>{
             toggeleDetails(task.id)
           }}/>
+
+          <EditDocumentIcon onClick = {() => setEditTask(task)}/>
         </li>
         ))}
         
@@ -91,6 +95,7 @@ const Today = ({tasks}) => {
       {addTask && (
         <NewModal onClose ={handleEditor}/>
       )}
+      {editTask && <NewModal onClose={() => setEditTask(null)} task={editTask}/>}
     </div>
   )
 }
