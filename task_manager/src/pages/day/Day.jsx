@@ -13,7 +13,7 @@ const Day = () => {
       <div className="today-title">
         <p>Today</p>
 
-        <span>4</span>
+        <span>{todaysTasks?.length || 0}</span>
       </div>
       <Today tasks={todaysTasks || []}/>
     </div>

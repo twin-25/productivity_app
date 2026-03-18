@@ -12,9 +12,13 @@ urlpatterns =[
   path('api/tasks/tomorrow/', views.getTomorrowsTasks, name='tomorrows-tasks'),
   path('api/tasks/thisweek/', views.getLaterTasks, name='this-week-tasks'),
   path('api/tasks/create/', views.createTask, name = 'create-task'),
+
+  path ('api/tags/', views.getTags, name = 'get-tags'),
+  path ('api/tags/create/', views.createTag, name = 'create-tags'),
   
   path('api/tasks/<int:pk>/', views.getTask, name = 'get-task'),
   path('api/tasks/<int:pk>/update/', views.updateTask, name = 'update-task'),
   path('api/tasks/<int:pk>/delete/', views.deleteTask, name = 'delete-task'),
+  path('api/tags/<int:pk>/delete/', views.deleteTag, name='delete-tag'),
 
 ]

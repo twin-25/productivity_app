@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import MenuIcon from '@mui/icons-material/Menu';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChecklistIcon from '@mui/icons-material/Checklist';
@@ -7,16 +7,22 @@ import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import StickyNote2Icon from '@mui/icons-material/StickyNote2';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
+import BackspaceIcon from '@mui/icons-material/Backspace';
 import './sidebar.scss'
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { userApi } from '../../services/userApi';
 import { useGetTodaysTasksQuery, useGetTomorrowsTasksQuery, useGetUpcommingTasksQuery } from '../../services/TaskApi'
+import { useCreateTagMutation, useDeleteTagMutation, useGetTagsQuery } from '../../services/TagApi';
 
 const SideBar = () => {
   const {data:todaysTasks} = useGetTodaysTasksQuery()
-  const {data:tomorrowsTasks} = useGetTomorrowsTasksQuery()
   const {data:thisWeekTasks} = useGetUpcommingTasksQuery()
+  const {data:tagData = []} = useGetTagsQuery() 
+  const [createTag] = useCreateTagMutation()
+  const [deleteTag] = useDeleteTagMutation()
+  const [newTag, setNewTag] = useState('')
+  const [tagColor, setTagColor] = useState('#000000')
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const handleLogOut = () =>{
@@ -24,6 +30,20 @@ const SideBar = () => {
     localStorage.removeItem('userInfo')
     dispatch(userApi.util.resetApiState())
     navigate('/')
+  }
+
+  const handleAddTag = async() =>{
+    if(!newTag.trim()) return
+    try{
+      await createTag({name:newTag, color:tagColor}).unwrap()
+      setNewTag('')
+    }catch (err){
+      console.log(err)
+    }
+  }
+
+  const handleDeleteTag = async(pk) =>{
+    await deleteTag(pk).unwrap()
   }
   return (
     <div className='sidebar active'>
@@ -95,9 +115,14 @@ const SideBar = () => {
         </ul>
         <p className="title">Tags</p>
         <div className="tags">
-          <div className="tag" style={{backgroundColor: "blue"}}><span style={{color:'white'}}>
+          {tagData?.map((tag) =>(
+            <div className="tag" key = {tag.id} style={{backgroundColor: tag.color}}><span style={{color:'white'}}>
+            {tag.name}</span> <BackspaceIcon onClick={()=>handleDeleteTag(tag.id)}/></div>
+          ))
+          }
+          {/* <div className="tag" style={{backgroundColor: "blue"}}><span style={{color:'white'}}>
             Tag 1</span></div>
-          <div className="tag" style={{backgroundColor: "green"}}>< span style={{color:'white'}}>Tag2</span></div>
+          <div className="tag" style={{backgroundColor: "green"}}>< span style={{color:'white'}}>Tag2</span></div> */}
           <div className="tag add-tag">
             <input type="text" placeholder='New tag Name' 
             style={{
@@ -107,12 +132,19 @@ const SideBar = () => {
               width: '80%',
               color: '#5D5A58 '
 
-            }}/>
+            }}
+            onChange={(e)=>setNewTag(e.target.value)}
+            />
             <AddCircleOutlineOutlinedIcon
             style={{
               fontSize: '18px'
             }}
+            onClick={handleAddTag}
             />
+            <div><label htmlFor="color">Tag Color:</label>
+            <input type="color"  id="tagColor" value={tagColor} 
+            onChange={(e) =>setTagColor(e.target.value)}
+            /></div>
           </div>
         </div>
       </div>

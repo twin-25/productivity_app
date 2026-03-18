@@ -1,7 +1,7 @@
-from .models import User, Task
+from .models import User, Task, Tag
 
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, date
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.response import Response
@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes 
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.contrib.auth.hashers import make_password
-from .serializers import ( MyTokenObtainPairSerializer, UserSerializer, UserSerializerWithToken, TaskSerializer)
+from .serializers import ( MyTokenObtainPairSerializer, UserSerializer, UserSerializerWithToken, TaskSerializer, TagSerializer)
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 
@@ -79,7 +79,7 @@ def getTasks(request):
 @permission_classes([IsAuthenticated])
 def getTodaysTasks(request):
   user = request.user
-  due_date = timezone.now().date()
+  due_date = date.today()
   tasks = Task.objects.filter(user = user, due_date= due_date)
   serializer = TaskSerializer(tasks, many=True)
   return Response(serializer.data)
@@ -89,7 +89,7 @@ def getTodaysTasks(request):
 @permission_classes([IsAuthenticated])
 def getTomorrowsTasks(request):
   user = request.user
-  due_date = timezone.now().date() + timedelta(days=1)
+  due_date = date.today() + timedelta(days=1)
   tasks = Task.objects.filter(user = user, due_date= due_date)
   serializer = TaskSerializer(tasks, many=True)
   return Response(serializer.data)
@@ -98,8 +98,8 @@ def getTomorrowsTasks(request):
 @permission_classes([IsAuthenticated])
 def getLaterTasks(request):
   user = request.user
-  tomorrow = timezone.now().date() + timedelta(days=1)
-  end_of_week = timezone.now().date() + timedelta(days=7)
+  tomorrow = date.today() + timedelta(days=1)
+  end_of_week = date.today() + timedelta(days=7)
   tasks = Task.objects.filter(user = user, due_date__range= [tomorrow, end_of_week])
   serializer = TaskSerializer(tasks, many=True)
   return Response(serializer.data)
@@ -164,5 +164,43 @@ def deleteTask(request, pk):
   task.delete()
   return Response({'detail': 'Task deleted successfully'}, status=status.HTTP_200_OK)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getTags(request):
+  user = request.user
+  tags = Tag.objects.filter(user=user)
+  serializer = TagSerializer(tags, many=True)
+  return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def createTag(request):
+  user = request.user
+  data = request.data
+  if Tag.objects.filter(user=user).count() >= 10:
+    return Response(
+      {'detail': 'You have reached the maximum limit of 10 tags'},
+      status = status.HTTP_400_BAD_REQUEST
+    )
+  tag = Tag.objects.create(
+    user = user,
+    name = data['name'],
+    color = data['color']
+  )
+  serializer = TagSerializer(tag, many=False)
+  return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def deleteTag(request, pk):
+  user = request.user
+  try:
+    tag = Tag.objects.get(id=pk, user= user)
+  except Tag.DoesNotExist:
+    return Response({'detail': 'Tag not found'}, status=status.HTTP_404_NOT_FOUND)
+  tag.delete()
+  return Response({'detail': 'Tag deleted successfully'}, status=status.HTTP_200_OK)
 
 
