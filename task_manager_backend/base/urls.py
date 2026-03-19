@@ -23,6 +23,8 @@ urlpatterns =[
   path ('api/calendarEvents/', views.getEvents, name = 'get-events'),
   path ('api/calendarEvents/create/', views.createCalendarEvent, name = 'create-events'),
 
+  path('api/chatbot/', views.chatbot, name='chatbot'),
+
 
   
   path('api/tasks/<int:pk>/', views.getTask, name = 'get-task'),

@@ -32,9 +32,10 @@ const Home = () => {
             <Tomorrow tasks={tomorrowsTasks || []}/>
             </div>
             <div className="home-right">{thisWeekLoading && <Loader/>}
-            <Week tasks={thisWeekTasks || []}/></div>
+            <Week tasks={thisWeekTasks || []}/>
+            
+            </div>
           </div>
-        
       </div>
     </div>
   )

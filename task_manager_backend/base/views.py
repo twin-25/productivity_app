@@ -1,4 +1,6 @@
 from .models import User, Task, Tag, StickyNote, CalendarEvent
+import anthropic
+from django.conf import settings
 
 from django.utils import timezone
 from datetime import timedelta, date
@@ -11,6 +13,10 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.contrib.auth.hashers import make_password
 from .serializers import ( MyTokenObtainPairSerializer, UserSerializer, UserSerializerWithToken, TaskSerializer, TagSerializer, StickyNoteSerializer, CalendarEventSerializer )
 from rest_framework_simplejwt.views import TokenObtainPairView
+
+from django.utils import timezone
+
+today = timezone.now().date()
 
 
 
@@ -309,3 +315,64 @@ def deleteCalendarEvent(request, pk):
     return Response({'detail': 'Event not found'}, status=status.HTTP_404_NOT_FOUND)
   event.delete()
   return Response({'detail': 'Event deleted successfully'}, status=status.HTTP_200_OK)
+
+
+client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def chatbot(request):
+  message = request.data.get('message', '')
+  history = request.data.get('history', [])
+
+  user = request.user
+  tasks = Task.objects.filter(user = user )
+  tags = Tag.objects.filter(user=user)
+  notes = StickyNote.objects.filter(user=user)
+  events = CalendarEvent.objects.filter(user=user,start_date__gte=today )
+
+  #serialize the data 
+  task_data = TaskSerializer(tasks, many=True).data
+  tags_data = TagSerializer(tags, many= True).data
+  notes_data = StickyNoteSerializer(notes, many = True).data
+  events_data = CalendarEventSerializer(events, many=True).data
+
+  system_prompt = f"""
+  You are Alto, {user.username}'s assistant in the Ascend app 
+  Keep responses consise and friendly
+  You can joke with them
+  Do not make up the data that is not there
+  only answer questions related to the users data
+  if they ask you something outside app, politely deflect
+  You can help the user with:
+  -Analyzing their tasks and productivity
+  -giving stats about thereir data
+  -answering questions about their tasks,notes, events and tags
+  You can also:
+  - Give productivity stats and insights
+  - Suggest which tasks to prioritize
+  - Notice patterns in the user's data
+  - Celebrate their achievements
+  - Give motivational messages when they have many overdue tasks
+  - Warn them about upcoming events
+
+
+  You have access to 
+  TASKS:{task_data}
+  TAGS: {tags_data}
+  EVENTS: {events_data}
+  NOTES: {notes_data}
+
+  """
+
+  response = client.messages.create(
+    model='claude-opus-4-6',
+    max_tokens=1000,
+    system = [{
+      "type":"text",
+      'text':system_prompt,
+      "cache_control":{"type": "ephemeral"}
+    }],
+    messages=history[-10:]+[{'role':"user","content":message}],
+  )
+  return Response({'message': response.content[0].text})

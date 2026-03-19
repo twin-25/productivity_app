@@ -1,0 +1,18 @@
+.react-chatbot-kit-chat-inner-container {
+  background-color: #353557;  /* deep navy */
+}
+
+.react-chatbot-kit-chat-message-container {
+  background-color: #1a1a2e;
+}
+
+.react-chatbot-kit-chat-input {
+  background-color: #2b2d42;
+  color: #fff;
+  border: 1px solid #E8845C;  /* orange border on input */
+}
+
+.react-chatbot-kit-chat-input::placeholder {
+  color: #aaa;
+}
+
