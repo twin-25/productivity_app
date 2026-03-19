@@ -1,4 +1,4 @@
-from .models import User, Task, Tag, StickyNote
+from .models import User, Task, Tag, StickyNote, CalendarEvent
 
 from django.utils import timezone
 from datetime import timedelta, date
@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes 
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.contrib.auth.hashers import make_password
-from .serializers import ( MyTokenObtainPairSerializer, UserSerializer, UserSerializerWithToken, TaskSerializer, TagSerializer, StickyNoteSerializer)
+from .serializers import ( MyTokenObtainPairSerializer, UserSerializer, UserSerializerWithToken, TaskSerializer, TagSerializer, StickyNoteSerializer, CalendarEventSerializer )
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 
@@ -236,7 +236,7 @@ def updateStickyNote(request, pk):
   try:
     note = StickyNote.objects.get(id=pk, user= user)
   except StickyNote.DoesNotExist:
-    return Response({'detail': 'Note not found'}, status=status.HTTP_404_NOT_FOUND)
+    return Response({'detail': 'Event not found'}, status=status.HTTP_404_NOT_FOUND)
   serializer = StickyNoteSerializer(note, data = request.data, many=False)
   if serializer.is_valid():
     serializer.save()
@@ -254,3 +254,58 @@ def deleteStickyNote(request, pk):
     return Response({'detail': 'StickyNote not found'}, status=status.HTTP_404_NOT_FOUND)
   note.delete()
   return Response({'detail': 'StickyNote deleted successfully'}, status=status.HTTP_200_OK)
+
+
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getEvents(request):
+  user = request.user
+  events = CalendarEvent.objects.filter(user = user)
+  serializer = CalendarEventSerializer(events, many=True)
+  return Response(serializer.data)
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def createCalendarEvent(request):
+  user = request.user
+  data = request.data
+  event = CalendarEvent.objects.create(
+    user = user,
+    title = data['title'],
+    start_date = data['start_date'],
+    end_date = data.get('end_date', None)
+  )
+  serializer = CalendarEventSerializer(event, many=False)
+  return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def updateCalendarEvent(request, pk):
+  user = request.user
+  try:
+    event = CalendarEvent.objects.get(id=pk, user= user)
+  except CalendarEvent.DoesNotExist:
+    return Response({'detail': 'Event not found'}, status=status.HTTP_404_NOT_FOUND)
+  serializer = CalendarEventSerializer(event, data = request.data, many=False)
+  if serializer.is_valid():
+    serializer.save()
+    return Response(serializer.data)
+  return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def deleteCalendarEvent(request, pk):
+  user = request.user
+  try:
+    event = CalendarEvent.objects.get(id=pk, user= user)
+  except CalendarEvent.DoesNotExist:
+    return Response({'detail': 'Event not found'}, status=status.HTTP_404_NOT_FOUND)
+  event.delete()
+  return Response({'detail': 'Event deleted successfully'}, status=status.HTTP_200_OK)

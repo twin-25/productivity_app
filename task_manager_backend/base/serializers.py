@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Task, Tag, Subtask, User, StickyNote
+from .models import Task, Tag, Subtask, User, StickyNote, CalendarEvent
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -12,7 +12,6 @@ class TagSerializer(serializers.ModelSerializer):
   class Meta:
     model = Tag
     fields = ['id', 'name', 'color', 'user']
-
 
 
 
@@ -33,6 +32,13 @@ class StickyNoteSerializer(serializers.ModelSerializer):
   class Meta:
     model = StickyNote
     fields = ['id', 'title', 'description', 'color', 'user']
+    read_only_fields = ['user']
+
+
+class CalendarEventSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = CalendarEvent
+    fields = ['id', 'title', 'start_date', 'end_date', 'user']
     read_only_fields = ['user']
 
 

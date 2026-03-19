@@ -3,9 +3,11 @@ import SideBar from '../../components/sidebar/SideBar'
 import './mycalendar.scss'
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar'
-import {format, parse, getDay, addDays } from 'date-fns';
+import {format, parse, getDay} from 'date-fns';
 import startOfWeek from 'date-fns/startOfWeek'
 import enUS from 'date-fns/locale/en-US'
+import { useGetEventQuery } from '../../services/CalendarEventApi';
+import {EventModal} from '../../components/eventModal/EventModal'
 
 
 const locales = {
@@ -22,38 +24,31 @@ const localizer = dateFnsLocalizer({
 
 
 const Mycalendar = () => {
-  const [events, SetEvents] = useState([
-    {
-      title: 'Design Meeting',
-      start : new Date(),
-      end: addDays(new Date(), 1),
-      allDay: true,
-    },
-    {
-      title: 'Demo Presentation',
-      start : addDays(new Date(), 2),
-      end: addDays(new Date(), 2),
-      allDay: true,
-    },
-  ]);
+  const {data:eventData} = useGetEventQuery()
+  const [modalOpen, setModalOpen] = useState(false)
+const [editingEvent, setEditingEvent] = useState(null)
+const [selectedStart, setSelectedStart] = useState(null)
+
+  const calendarEvents = eventData?.map((event) =>({
+    id: event.id,
+    title: event.title,
+    start: new Date(event.start_date),
+    end: new Date(event.end_date)
+  })
+) || []
+
   const [date, setDate] = useState(new Date());
   const [currentView, setCurrentView] = useState(Views.MONTH)
 
-  const handleSelectSlot = ({start}) =>{
-    const title = prompt("Enter a Title For Your Event");
-    if(!title || title.trim() === "") return;
-
-    const newEvents = {
-    title,
-    start,
-    end: addDays(start),
-    allDay: true,
-  };
-  SetEvents((prev) =>[...prev, newEvents]);
+  const handleSelectSlot = (slotInfo) =>{
+    setEditingEvent(null)
+    setSelectedStart(slotInfo.start)
+    setModalOpen(true)
   };
 
   const handleSelectEvent = (event) =>{
-    alert(`Event: ${event.title}`);
+    setEditingEvent(event)
+    setModalOpen(true)
   }
 
   return (
@@ -67,7 +62,7 @@ const Mycalendar = () => {
         <h1>Calender</h1>
         <Calendar
           localizer={localizer}
-          events={events}
+          events={calendarEvents}
           startAccessor="start"
           endAccessor="end"
           selectable
@@ -80,6 +75,12 @@ const Mycalendar = () => {
           onNavigate={setDate}
           date={date}
         />
+        <EventModal
+    open={modalOpen}
+    onClose={() => setModalOpen(false)}
+    initialData={editingEvent}
+    selectedStart={selectedStart}
+/>
       </div>
     </div>
   )
