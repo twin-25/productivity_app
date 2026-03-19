@@ -1,4 +1,4 @@
-from .models import User, Task, Tag
+from .models import User, Task, Tag, StickyNote
 
 from django.utils import timezone
 from datetime import timedelta, date
@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes 
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.contrib.auth.hashers import make_password
-from .serializers import ( MyTokenObtainPairSerializer, UserSerializer, UserSerializerWithToken, TaskSerializer, TagSerializer)
+from .serializers import ( MyTokenObtainPairSerializer, UserSerializer, UserSerializerWithToken, TaskSerializer, TagSerializer, StickyNoteSerializer)
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 
@@ -98,7 +98,7 @@ def getTomorrowsTasks(request):
 @permission_classes([IsAuthenticated])
 def getLaterTasks(request):
   user = request.user
-  tomorrow = date.today() + timedelta(days=1)
+  tomorrow = date.today() + timedelta(days=2)
   end_of_week = date.today() + timedelta(days=7)
   tasks = Task.objects.filter(user = user, due_date__range= [tomorrow, end_of_week])
   serializer = TaskSerializer(tasks, many=True)
@@ -203,4 +203,54 @@ def deleteTag(request, pk):
   tag.delete()
   return Response({'detail': 'Tag deleted successfully'}, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getStickyNotes(request):
+  user = request.user
+  notes = StickyNote.objects.filter(user = user)
+  serializer = StickyNoteSerializer(notes, many=True)
+  return Response(serializer.data)
 
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def createStickyNote(request):
+  user = request.user
+  data = request.data
+  note = StickyNote.objects.create(
+    user = user,
+    title = data['title'],
+    color = data.get('color', '#FFFF00'),
+    description = data.get('description', ''),
+
+  )
+  serializer = StickyNoteSerializer(note, many=False)
+  return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def updateStickyNote(request, pk):
+  user = request.user
+  try:
+    note = StickyNote.objects.get(id=pk, user= user)
+  except StickyNote.DoesNotExist:
+    return Response({'detail': 'Note not found'}, status=status.HTTP_404_NOT_FOUND)
+  serializer = StickyNoteSerializer(note, data = request.data, many=False)
+  if serializer.is_valid():
+    serializer.save()
+    return Response(serializer.data)
+  return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def deleteStickyNote(request, pk):
+  user = request.user
+  try:
+    note = StickyNote.objects.get(id=pk, user= user)
+  except StickyNote.DoesNotExist:
+    return Response({'detail': 'StickyNote not found'}, status=status.HTTP_404_NOT_FOUND)
+  note.delete()
+  return Response({'detail': 'StickyNote deleted successfully'}, status=status.HTTP_200_OK)

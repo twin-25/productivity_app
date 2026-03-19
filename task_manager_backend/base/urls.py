@@ -15,10 +15,17 @@ urlpatterns =[
 
   path ('api/tags/', views.getTags, name = 'get-tags'),
   path ('api/tags/create/', views.createTag, name = 'create-tags'),
+
+  path ('api/stickyNotes/', views.getStickyNotes, name = 'get-notes'),
+  path ('api/stickyNotes/create/', views.createStickyNote, name = 'create-notes'),
+
+
   
   path('api/tasks/<int:pk>/', views.getTask, name = 'get-task'),
   path('api/tasks/<int:pk>/update/', views.updateTask, name = 'update-task'),
   path('api/tasks/<int:pk>/delete/', views.deleteTask, name = 'delete-task'),
   path('api/tags/<int:pk>/delete/', views.deleteTag, name='delete-tag'),
+  path('api/stickyNotes/<int:pk>/update/', views.updateStickyNote, name = 'update-note'),
+  path('api/stickyNotes/<int:pk>/delete/', views.deleteStickyNote, name = 'delete-note'),
 
 ]

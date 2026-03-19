@@ -8,7 +8,7 @@ const StickyModal = ({open, initialData, onSubmit, onClose}) => {
   useEffect(() =>{
     if(initialData){
       setTitle(initialData.title || '');
-      setContent(initialData.content || '');
+      setContent(initialData.description|| '');
       setColor(initialData.color || "#ffeb3b");
     }
     else{
@@ -22,7 +22,7 @@ const StickyModal = ({open, initialData, onSubmit, onClose}) => {
   const handelSubmit = (e) =>{
     e.preventDefault();
     if(!title.trim() || !content.trim()) return;
-    onSubmit({title:title.trim(), content: content.trim(), color})
+    onSubmit({title:title.trim(), description: content.trim(), color})
   }
   if (!open) return null;
   return (

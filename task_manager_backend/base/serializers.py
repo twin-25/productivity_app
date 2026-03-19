@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Task, Tag, Subtask, User
+from .models import Task, Tag, Subtask, User, StickyNote
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -27,6 +27,13 @@ class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model= User
     fields = ['id', 'username', 'email', 'is_staff']
+
+
+class StickyNoteSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = StickyNote
+    fields = ['id', 'title', 'description', 'color', 'user']
+    read_only_fields = ['user']
 
 
 class UserSerializerWithToken(UserSerializer):

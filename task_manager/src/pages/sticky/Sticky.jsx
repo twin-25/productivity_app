@@ -4,31 +4,15 @@ import SideBar from '../../components/sidebar/SideBar'
 import StickyNote from '../../components/stickyNote/StickyNote'
 import StickyModal from '../../components/stickyModal/StickyModal'
 import {AddCircleOutlineOutlined} from '@mui/icons-material'
+import { useCreateNoteMutation, useDeleteNoteMutation, useGetNotesQuery, useUpdateNoteMutation } from '../../services/StickyNoteApi'
+import Loader from '../../components/Loader'
 
 const Sticky = () => {
-  const[wall, setWall] = useState(
-    [{
-      id:1,
-      title:"Map sticky note bjsdbcjb sucu ncfj nsjc ihbs dfhibsmb nji sbdcdhi sd",
-      content: "follow properly ",
-      color: '#fce38a',
-    },
-    {
-      id:2,
-      title:"Django BAckend",
-      content: "implemennt payment system ",
-      color: '#95e1d3',
-    },
-    {
-      id:3,
-      title:"Get a Job",
-      content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam voluptas obcaecati laboriosam quibusdam accusamus dolores, mollitia optio sit. Vitae cupiditate voluptate, voluptatum accusamus aut enim nemo dolorem autem quos delectus! bjcbjbjhicb ihjabchjibhaabchbancbnbchibai bcy isb",
-      color: '#fce38a',
-    }
-  
-  
-  ]
-  );
+  const {data:noteData, isLoading} = useGetNotesQuery()
+  const [createNote, {isLoading:createLoading}] = useCreateNoteMutation()
+  const [updateNote] = useUpdateNoteMutation()
+  const [deleteNote] = useDeleteNoteMutation()
+  const [error, setError] =  useState('')
   const [modalOpen, setModalOpen] = useState(false);
   const[editingNote,setEditingNote] = useState(null);
   const openAddModal= () =>{
@@ -43,27 +27,29 @@ const Sticky = () => {
     setModalOpen(false);
 
   };
-  const handleSubmit = (data) =>{
-    if(editingNote){
-      setWall((prev)=>{
-        prev.map((note) => note.id === editingNote.id? {...note, ...data}: note );
-      });
+  const handleSubmit = async(noteData) =>{
+
+    try{
+      if(editingNote){
+        await updateNote({pk: editingNote.id, ...noteData}).unwrap()
+      } else{
+        await createNote(noteData).unwrap()
+      }
+      closeModal()
+    }catch(err){
+      setError(err.data?.detail||'Update failed')
     }
-    else{
-      const newNote = {
-        id : wall.length +1,
-        ...data,
-      };
-      setWall((prev)=>[...prev, newNote])
-    }
-    closeModal();
+
   };
 
-  const handleDelete = (id) =>{
-    if(window.confirm("Are you sure you want to delete?")){
-      setWall((prev) => prev.filter((note) => note.id !== id));
+   const handleDelete = async (id) => {
+    try {
+      await deleteNote(id).unwrap();
+      closeModal()
+    } catch (err) {
+      setError(err.data?.detail || "Delete Failed");
     }
-  }
+  };
 
   return (
     <div className='sticky'>
@@ -71,12 +57,13 @@ const Sticky = () => {
       <div className="sticky-container">
         <p className="title">Sticky Wall</p>
         <div className="row">
+          {isLoading && <Loader/>}
           {
-            wall.map((note) =>(
+            noteData?.map((note) =>(
               <StickyNote 
               key={note.id}
               title = {note.title}
-              content = {note.content}
+              content = {note.description}
               color = {note.color}
               onEdit = {()=>openEditModal(note)}
               onDelete = {() =>handleDelete(note.id)}
@@ -90,6 +77,7 @@ const Sticky = () => {
             }}
             onClick={openAddModal}
           >
+            {createLoading && <Loader/>}
             <AddCircleOutlineOutlined className='icon'/>
           </div>
         </div>
