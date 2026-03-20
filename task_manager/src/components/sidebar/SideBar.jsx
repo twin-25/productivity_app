@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useEffect } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ChecklistIcon from '@mui/icons-material/Checklist';
@@ -16,9 +17,28 @@ import { useGetTodaysTasksQuery, useGetTomorrowsTasksQuery, useGetUpcommingTasks
 import { useCreateTagMutation, useDeleteTagMutation, useGetTagsQuery } from '../../services/TagApi';
 
 const SideBar = () => {
-  const {data:todaysTasks} = useGetTodaysTasksQuery()
+  const {data:todaysTasks} = useGetTodaysTasksQuery() 
+  const {data:tomorrowsTasks} = useGetTomorrowsTasksQuery() 
   const {data:thisWeekTasks} = useGetUpcommingTasksQuery()
   const {data:tagData = []} = useGetTagsQuery() 
+
+  const [workCount, setWorkCount] = useState(0)
+  const [personalCount, setPersonalCount] = useState(0)
+  const [otherCount, setOtherCount] = useState(0)
+
+  useEffect(() => {
+  const totalTasks = [
+    ...(todaysTasks || []),
+    ...(tomorrowsTasks || []),
+    ...(thisWeekTasks || []),
+  ]
+
+  setWorkCount(totalTasks?.filter(task => task.category === 'Work').length || 0)
+  setPersonalCount(totalTasks?.filter(task => task.category === 'Personal').length || 0)
+  setOtherCount(totalTasks?.filter(task => task.category === 'Others').length || 0)
+
+}, [todaysTasks, tomorrowsTasks, thisWeekTasks])
+
   const [createTag] = useCreateTagMutation()
   const [deleteTag] = useDeleteTagMutation()
   const [newTag, setNewTag] = useState('')
@@ -62,14 +82,14 @@ const SideBar = () => {
       <div className='center'>
         <ul>
           <p className="title">Tasks</p>
-          <Link to='/home'
+          {/* <Link to='/home'
           style={{textDecoration:"none"}}>
           <li>
             <NavigateNextIcon className='icon'/>
             <span>Upcomming</span>
             <div className="counter">{thisWeekTasks?.length || 0}</div>
             </li>
-          </Link>
+          </Link> */}
           <Link to='/day'
           style={{textDecoration:"none"}}
           
@@ -100,17 +120,17 @@ const SideBar = () => {
           <li>
             <div className="color" style={{backgroundColor: "#3498db"}}></div>
             <span>Work</span>
-            <div className="counter">10</div>
+            <div className="counter">{workCount}</div>
           </li>
           <li>
             <div className="color" style= {{backgroundColor: "#e74c3c"}}></div>
             <span>Personal</span>
-            <div className="counter">12</div>
+            <div className="counter">{personalCount}</div>
           </li>
           <li>
             <div className="color" style={{backgroundColor: "#f1c40f"}}></div>
-            <span>other</span>
-            <div className="counter">3</div>
+            <span>Others</span>
+            <div className="counter">{otherCount}</div>
           </li>
         </ul>
         <p className="title">Tags</p>

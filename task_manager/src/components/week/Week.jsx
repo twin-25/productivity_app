@@ -57,9 +57,9 @@ const Week = ({tasks}) => {
                   <div className="right">
                     <span className='color' style={{
                       backgroundColor:
-                        task.category === "personal" ?
+                        task.category === "Personal" ?
                           "#e74c3c" :
-                          task.category === "work" ? "#3498db" :
+                          task.category === "Work" ? "#3498db" :
                             "#f1c40f"
                     }}></span>
                     <p>{task.category}</p>

@@ -88,9 +88,9 @@ const NewModal = ({ onClose, task }) => {
                   value={formData.category}
                   onChange={handleChange}
                 >
-                  <option value="personal">Personal</option>
-                  <option value="work">Work</option>
-                  <option value="others">Others</option>
+                  <option value="Personal">Personal</option>
+                  <option value="Work">Work</option>
+                  <option value="Others">Others</option>
                 </select>
               </li>
               <li>
