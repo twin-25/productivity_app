@@ -4,7 +4,7 @@ export const chatbotApi = createApi({
   reducerPath:'ChatbotApi',
   tagTypes:['ChatMessages'],
   baseQuery: fetchBaseQuery({
-      baseUrl: 'http://127.0.0.1:8000/api/',
+      baseUrl: 'http://127.0.0.1:8000/',
       prepareHeaders : (headers) =>{
         const token = localStorage.getItem('token')
         headers.set('authorization', `Bearer ${token}`)
@@ -23,5 +23,5 @@ export const chatbotApi = createApi({
 })
 
 export const {
-  useSendMessagesMutation
+  useSendMessageMutation
 } = chatbotApi

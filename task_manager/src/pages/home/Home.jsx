@@ -6,6 +6,7 @@ import Tomorrow from '../../components/tomorrow/Tomorrow'
 import Week from '../../components/week/Week'
 import { useGetTodaysTasksQuery, useGetTomorrowsTasksQuery, useGetUpcommingTasksQuery } from '../../services/TaskApi'
 import Loader from '../../components/Loader'
+import ChatBot from '../../components/chatBot/ChatBot'
 
 const Home = () => {
   const {isLoading:todayLoading, error:TodayError, data:todaysTasks} = useGetTodaysTasksQuery()
@@ -36,6 +37,7 @@ const Home = () => {
             
             </div>
           </div>
+          <ChatBot/>
       </div>
     </div>
   )
